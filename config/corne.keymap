@@ -111,8 +111,18 @@
         };
 
         Combos {
-            bindings = <&bt BT_CLR_ALL>;
+            bindings = <&mo 1>;
             key-positions = <39 38>;
+        };
+
+        dash {
+            bindings = <&kp MINUS>;
+            key-positions = <21 22>;
+        };
+
+        altf4 {
+            bindings = <&kp LA(F4)>;
+            key-positions = <1 2 3>;
         };
     };
 
@@ -121,10 +131,10 @@
 
         colemak {
             bindings = <
-&tab_esc                 &kp Q              &kp W           &kp F        &kp P             &kp B          &kp J        &kp L             &kp U         &kp Y            &kp SQT                 &kp BACKSPACE
-&kp LCTRL                &hml LEFT_SHIFT A  &hm LEFT_GUI R  &hm LCTRL S  &hml RIGHT_ALT T  &kp G          &kp K        &hmr RIGHT_ALT N  &hm RCTRL E   &hm RIGHT_GUI I  &hmr RIGHT_SHIFT O      &kp SQT
-&mt LEFT_SHIFT CAPSLOCK  &kp Z              &kp X           &kp C        &kp D             &kp V          &kp M        &kp H             &kp COMMA     &kp DOT          &mt BACKSLASH QUESTION  &kp RIGHT_SHIFT
-                                                            &lt 5 ENTER  &lt 2 TAB         &kp BACKSPACE  &lt 6 SPACE  &lt 3 ENTER       &lt 4 DELETE
+&trans  &kp Q              &kp W           &kp F        &kp P             &kp B          &kp J        &kp L             &kp U         &kp Y            &kp SQT              &trans
+&trans  &hml LEFT_SHIFT A  &hm LEFT_GUI R  &hm LCTRL S  &hml RIGHT_ALT T  &kp G          &kp K        &hmr RIGHT_ALT N  &hm RCTRL E   &hm RIGHT_GUI I  &hmr RIGHT_SHIFT O   &tog 6
+&trans  &kp Z              &kp X           &kp C        &kp D             &kp V          &kp M        &kp H             &kp COMMA     &kp DOT          &mt BACKSLASH SLASH  &trans
+                                           &lt 5 ENTER  &lt 2 TAB         &kp BACKSPACE  &lt 6 SPACE  &lt 3 ENTER       &lt 4 DELETE
             >;
         };
 
