@@ -5,6 +5,8 @@
  */
 
 #include "corne.dtsi"
+#include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
 
 &default_transform {
 	col-offset = <6>;
@@ -28,4 +30,36 @@
     vbatt: vbatt {
         compatible = "zmk,battery-nrf-vddh";
     };
+};
+
+&pro_micro_i2c {
+    status = "okay";
+    clock-frequency = <400000>;
+
+    tps43: iqs5xx@74 {
+        status = "okay";
+        compatible = "azoteq,iqs5xx";
+        reg = <0x74>;
+
+        /* RDY = CS header = D1 = P0.06 */
+        rdy-gpios = <&pro_micro 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+
+        one-finger-tap;
+        press-and-hold;
+        press-and-hold-time = <250>;
+        two-finger-tap;
+
+        scroll;
+        natural-scroll-y;
+        natural-scroll-x;
+        switch-xy;
+
+        bottom-beta = <5>;
+        stationary-threshold = <5>;
+    };
+};
+
+&tps43_split {
+    device = <&tps43>;
+    input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>;
 };
