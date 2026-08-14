@@ -60,6 +60,10 @@
         low-speed-gain-percent = <220>;
         low-speed-threshold = <6>;
 
+        three-finger-swipe;
+        three-finger-swipe-invert-x;
+        three-finger-swipe-threshold-percent = <18>;
+
         /* Continue the cursor only while a driver-owned drag is active. */
         edge-motion;
         edge-motion-margin-percent = <6>;
