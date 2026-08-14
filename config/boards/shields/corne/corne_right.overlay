@@ -56,6 +56,10 @@
         natural-scroll-x;
         switch-xy;
 
+        /* Boost precise motion without changing fast swipes. */
+        low-speed-gain-percent = <220>;
+        low-speed-threshold = <6>;
+
         /* Continue the cursor only while a driver-owned drag is active. */
         edge-motion;
         edge-motion-margin-percent = <6>;
