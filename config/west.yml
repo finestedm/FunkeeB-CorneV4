@@ -18,6 +18,8 @@ manifest:
       url-base: https://github.com/infely
     - name: AYM1607
       url-base: https://github.com/AYM1607
+    - name: finestedm
+      url-base: https://github.com/finestedm
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -42,7 +44,7 @@ manifest:
       remote: infely
       revision: main
     - name: zmk-driver-azoteq-iqs5xx
-      remote: AYM1607
-      revision: main
+      remote: finestedm
+      revision: 76388152ab0038a4de97f810e59f8deb418ea32c
   self:
     path: config

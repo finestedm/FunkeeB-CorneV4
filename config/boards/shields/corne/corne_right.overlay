@@ -47,6 +47,8 @@
         one-finger-tap;
         press-and-hold;
         press-and-hold-time = <250>;
+        tap-drag;
+        tap-drag-timeout-ms = <300>;
         two-finger-tap;
 
         scroll;
@@ -54,8 +56,22 @@
         natural-scroll-x;
         switch-xy;
 
-        bottom-beta = <5>;
-        stationary-threshold = <5>;
+        /* Boost precise motion without changing fast swipes. */
+        low-speed-gain-percent = <220>;
+        low-speed-threshold = <6>;
+
+        three-finger-swipe;
+        three-finger-swipe-invert-x;
+        three-finger-swipe-threshold-percent = <18>;
+
+        /* Continue the cursor only while a driver-owned drag is active. */
+        edge-motion;
+        edge-motion-margin-percent = <6>;
+        edge-motion-delay-ms = <120>;
+        edge-motion-interval-ms = <16>;
+        edge-motion-ramp-ms = <800>;
+        edge-motion-min-step = <1>;
+        edge-motion-max-step = <8>;
     };
 };
 
