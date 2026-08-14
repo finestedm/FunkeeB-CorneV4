@@ -48,6 +48,9 @@
         press-and-hold;
         press-and-hold-time = <250>;
         two-finger-tap;
+        three-finger-swipe;
+        three-finger-swipe-invert-x;
+        three-finger-swipe-threshold-percent = <18>;
 
         scroll;
         natural-scroll-y;
