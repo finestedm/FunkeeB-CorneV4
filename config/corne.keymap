@@ -48,14 +48,20 @@
     };
 
     input_processors {
-        tps43_desktop_swipe: tps43_desktop_swipe {
+        tps43_gestures: tps43_gestures {
             compatible = "zmk,input-processor-behaviors";
             #input-processor-cells = <0>;
 
             /* Physical swipe left reveals the desktop on the right, and
-             * physical swipe right reveals the desktop on the left. */
-            codes = <INPUT_BTN_3 INPUT_BTN_4>;
-            bindings = <&kp LC(LG(RIGHT)) &kp LC(LG(LEFT))>;
+             * physical swipe right reveals the desktop on the left.
+             * Pinch-in/out uses standard Windows/Linux application zoom. */
+            codes = <INPUT_BTN_3 INPUT_BTN_4 INPUT_BTN_5 INPUT_BTN_6>;
+            bindings = <
+                &kp LC(LG(RIGHT))
+                &kp LC(LG(LEFT))
+                &kp LC(MINUS)
+                &kp LC(EQUAL)
+            >;
         };
     };
 
@@ -197,5 +203,5 @@
 };
 
 &tps43_listener {
-    input-processors = <&tps43_desktop_swipe>;
+    input-processors = <&tps43_gestures>;
 };

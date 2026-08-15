@@ -52,6 +52,7 @@
         two-finger-tap;
 
         scroll;
+        pinch-zoom;
         natural-scroll-y;
         natural-scroll-x;
         switch-xy;
