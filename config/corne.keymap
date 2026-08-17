@@ -53,9 +53,15 @@
             #input-processor-cells = <0>;
 
             /* Physical swipe left reveals the desktop on the right, and
-             * physical swipe right reveals the desktop on the left. */
-            codes = <INPUT_BTN_3 INPUT_BTN_4>;
-            bindings = <&kp LC(LG(RIGHT)) &kp LC(LG(LEFT))>;
+             * physical swipe right reveals the desktop on the left. Swipe
+             * up opens Task View; swipe down shows the desktop. */
+            codes = <INPUT_BTN_3 INPUT_BTN_4 INPUT_BTN_5 INPUT_BTN_6>;
+            bindings = <
+                &kp LC(LG(RIGHT))
+                &kp LC(LG(LEFT))
+                &kp LG(TAB)
+                &kp LG(D)
+            >;
         };
     };
 

@@ -50,6 +50,7 @@
         two-finger-tap;
         three-finger-swipe;
         three-finger-swipe-invert-x;
+        three-finger-swipe-invert-y;
         three-finger-swipe-threshold-percent = <18>;
 
         scroll;
