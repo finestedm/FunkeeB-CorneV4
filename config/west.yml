@@ -45,6 +45,6 @@ manifest:
       revision: main
     - name: zmk-driver-azoteq-iqs5xx
       remote: finestedm
-      revision: 2c283042eaf41c3633e62362ba39d66f0ccd2cf6
+      revision: 71f3ae3ad00cbd17acf0cb917553245990d49836
   self:
     path: config

@@ -68,6 +68,15 @@
         low-power-lp1-timeout-s = <300>;
         low-power-lp1-report-rate-ms = <80>;
         low-power-lp2-report-rate-ms = <320>;
+
+        /* Continue press-and-hold drag at the edge, with a gentle speed ramp. */
+        edge-motion;
+        edge-motion-margin-percent = <6>;
+        edge-motion-delay-ms = <120>;
+        edge-motion-interval-ms = <16>;
+        edge-motion-ramp-ms = <800>;
+        edge-motion-min-step = <1>;
+        edge-motion-max-step = <8>;
     };
 };
 
