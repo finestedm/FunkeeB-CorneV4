@@ -2,6 +2,7 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/pointing.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
 
 / {
     behaviors {
@@ -43,6 +44,24 @@
             require-prior-idle-ms = <70>;
             hold-trigger-key-positions = <0 1 5 6 10 11 12 14 15 16 17 18 19 20 21 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 7 8 9 2 4 3 13>;
             hold-trigger-on-release;
+        };
+    };
+
+    input_processors {
+        tps43_desktop_swipe: tps43_desktop_swipe {
+            compatible = "zmk,input-processor-behaviors";
+            #input-processor-cells = <0>;
+
+            /* Physical swipe left reveals the desktop on the right, and
+             * physical swipe right reveals the desktop on the left. Swipe
+             * up opens Task View; swipe down shows the desktop. */
+            codes = <INPUT_BTN_3 INPUT_BTN_4 INPUT_BTN_5 INPUT_BTN_6>;
+            bindings = <
+                &kp LC(LG(RIGHT))
+                &kp LC(LG(LEFT))
+                &kp LG(TAB)
+                &kp LG(D)
+            >;
         };
     };
 
@@ -181,4 +200,8 @@
             >;
         };
     };
+};
+
+&tps43_listener {
+    input-processors = <&tps43_desktop_swipe>;
 };
