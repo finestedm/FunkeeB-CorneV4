@@ -5,6 +5,8 @@
  */
 
 #include "corne.dtsi"
+#include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
 
 &default_transform {
 	col-offset = <6>;
@@ -28,4 +30,57 @@
     vbatt: vbatt {
         compatible = "zmk,battery-nrf-vddh";
     };
+};
+
+&pro_micro_i2c {
+    status = "okay";
+    clock-frequency = <400000>;
+
+    tps43: iqs5xx@74 {
+        status = "okay";
+        compatible = "azoteq,iqs5xx";
+        reg = <0x74>;
+
+        /* RDY = CS header = D1 = P0.06 */
+        rdy-gpios = <&pro_micro 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+
+        one-finger-tap;
+        press-and-hold;
+        press-and-hold-time = <250>;
+        two-finger-tap;
+        three-finger-swipe;
+        three-finger-swipe-invert-x;
+        three-finger-swipe-invert-y;
+        three-finger-swipe-threshold-percent = <18>;
+
+        scroll;
+        natural-scroll-y;
+        natural-scroll-x;
+        switch-xy;
+
+        bottom-beta = <5>;
+        stationary-threshold = <5>;
+
+        /* Automatic touch-wake power saving: LP1 after 5 seconds without
+         * touch, then LP2 after another 2 minutes. */
+        low-power;
+        low-power-idle-timeout-s = <5>;
+        low-power-lp1-timeout-s = <120>;
+        low-power-lp1-report-rate-ms = <80>;
+        low-power-lp2-report-rate-ms = <640>;
+
+        /* Continue press-and-hold drag at the edge, with a gentle speed ramp. */
+        edge-motion;
+        edge-motion-margin-percent = <6>;
+        edge-motion-delay-ms = <120>;
+        edge-motion-interval-ms = <16>;
+        edge-motion-ramp-ms = <800>;
+        edge-motion-min-step = <1>;
+        edge-motion-max-step = <8>;
+    };
+};
+
+&tps43_split {
+    device = <&tps43>;
+    input-processors = <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>;
 };
