@@ -1,0 +1,8 @@
+file_format: "1"
+id: nice_view_funkeeb
+name: nice!view FunkeeB status
+type: shield
+url: https://nicekeyboards.com/nice-view
+requires: [pro_micro]
+features:
+  - display

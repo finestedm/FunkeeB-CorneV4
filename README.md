@@ -22,6 +22,14 @@ Compatible with ZMK Studio.
 
 Flash MCU with a software generated in the actions section of Github. Later you can use ZMK Studio. 
 
+Each workflow run produces these hardware-specific firmware files:
+
+- `funkeeb-corne-left-niceview-bongo`: left/central half with nice!view and Bongo Cat
+- `funkeeb-corne-right-niceview-status`: right half with nice!view status screen
+- `funkeeb-corne-right-tps43-touchpad`: right half with the TPS43/IQS5xx touchpad
+
+Flash the left file together with exactly one of the two right-half variants.
+
 #### Keymap:
 
 

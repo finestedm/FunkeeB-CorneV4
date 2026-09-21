@@ -1,0 +1,26 @@
+/* Keep the working nice!view hardware configuration from current ZMK. */
+
+&nice_view_spi {
+    status = "okay";
+    nice_view: ls0xx@0 {
+        compatible = "sharp,ls0xx";
+        spi-max-frequency = <1000000>;
+        reg = <0>;
+        width = <160>;
+        height = <68>;
+        serial-vcom-inversion;
+        serial-vcom-interval = <33>;
+    };
+};
+
+/ {
+    chosen {
+        zephyr,display = &nice_view;
+    };
+};
+
+/* The Corne base shield contains an SSD1306 node. Only the nice!view is
+ * populated in this build, so do not initialise the unused I2C display. */
+&oled {
+    status = "disabled";
+};
