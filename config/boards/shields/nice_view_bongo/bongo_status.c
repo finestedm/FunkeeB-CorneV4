@@ -19,6 +19,7 @@
 #include <zmk/events/usb_conn_state_changed.h>
 #include <zmk/events/wpm_state_changed.h>
 #include <zmk/keymap.h>
+#include <zmk/usb.h>
 #include <zmk/wpm.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
@@ -363,18 +364,25 @@ static void connection_update_cb(struct bongo_connection_state state) {
 static struct bongo_connection_state connection_get_state(const zmk_event_t *eh) {
     const struct zmk_endpoint_instance selected = zmk_endpoint_get_selected();
     struct bongo_connection_state state = {
-        .status = BONGO_CONNECTION_USB,
+        .status = BONGO_CONNECTION_BLE_DISCONNECTED,
         .profile_index = zmk_ble_active_profile_index() + 1,
     };
 
-    if (selected.transport == ZMK_TRANSPORT_BLE) {
-        if (zmk_ble_active_profile_is_connected()) {
-            state.status = BONGO_CONNECTION_BLE_CONNECTED;
-        } else if (zmk_ble_active_profile_is_open()) {
-            state.status = BONGO_CONNECTION_BLE_OPEN;
-        } else {
-            state.status = BONGO_CONNECTION_BLE_DISCONNECTED;
-        }
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    /* The selected endpoint may remain USB after the cable is removed. Only
+     * report USB while the controller can actually see USB power. */
+    if (selected.transport == ZMK_TRANSPORT_USB && zmk_usb_is_powered()) {
+        state.status = BONGO_CONNECTION_USB;
+        return state;
+    }
+#else
+    ARG_UNUSED(selected);
+#endif
+
+    if (zmk_ble_active_profile_is_connected()) {
+        state.status = BONGO_CONNECTION_BLE_CONNECTED;
+    } else if (zmk_ble_active_profile_is_open()) {
+        state.status = BONGO_CONNECTION_BLE_OPEN;
     }
 
     return state;

@@ -28,3 +28,9 @@
 &tps43 {
     status = "disabled";
 };
+
+/* The right base overlay links the split-input transport to TPS43. Disable
+ * that transport as well so it never references the disabled touch device. */
+&tps43_split {
+    status = "disabled";
+};
