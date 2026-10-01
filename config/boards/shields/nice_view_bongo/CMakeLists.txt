@@ -1,0 +1,6 @@
+if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_VIEW_BONGO_WIDGET)
+  zephyr_library_include_directories(${CMAKE_SOURCE_DIR}/include)
+  zephyr_library_sources(custom_status_screen.c)
+  zephyr_library_sources(bongo_status.c)
+  zephyr_library_sources(bongo_frames.c)
+endif()

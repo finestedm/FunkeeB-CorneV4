@@ -1,15 +1,24 @@
-# This file generates the GitHub Actions matrix
-# For simple board + shield combinations, add them
-# to the top level board and shield arrays, for more
-# control, add individual board + shield combinations to
-# the `include` property, e.g:
-#
 ---
 include:
+  # The central half always gets the same nice!view Bongo Cat screen used by
+  # finestedm/temper-zmkstudio.
   - board: nice_nano@2.0.0//zmk
-    shield: corne_left
+    shield: corne_left nice_view_adapter nice_view_bongo
     snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_ZMK_STUDIO=y
+    artifact-name: funkeeb-corne-left-niceview-bongo
+
+  # Right-half alternative for a keyboard fitted with a nice!view. This
+  # custom shield disables TPS43 so the build is display-only.
+  - board: nice_nano@2.0.0//zmk
+    shield: corne_right nice_view_adapter nice_view_funkeeb
+    artifact-name: funkeeb-corne-right-niceview-status
+
+  # Right-half alternative for the TPS43/IQS5xx touchpad hardware.
   - board: nice_nano@2.0.0//zmk
     shield: corne_right
+    artifact-name: funkeeb-corne-right-tps43-touchpad
+
   - board: nice_nano@2.0.0//zmk
     shield: settings_reset
+    artifact-name: settings-reset

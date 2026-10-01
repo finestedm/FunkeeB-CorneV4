@@ -16,10 +16,14 @@ manifest:
       url-base: https://github.com/s6t
     - name: infely
       url-base: https://github.com/infely
+    - name: AYM1607
+      url-base: https://github.com/AYM1607
+    - name: finestedm
+      url-base: https://github.com/finestedm
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      revision: 6e2ef41e022d555b10f116e395832913f71717b3
       import: app/west.yml
     - name: hammerbeam-slideshow
       remote: gpeye
@@ -39,5 +43,11 @@ manifest:
     - name: nice-view-battery
       remote: infely
       revision: main
+    - name: zmk-driver-azoteq-iqs5xx
+      remote: finestedm
+      revision: bbeaf0a5301ab58e7a30e67caa409fa26cf841cd
+    - name: zmk-widget-bridge
+      remote: finestedm
+      revision: 75874ddc62bfa50ddde5926ae231966352d6df06
   self:
     path: config
