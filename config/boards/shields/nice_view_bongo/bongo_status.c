@@ -22,6 +22,9 @@
 #include <zmk/usb.h>
 #include <zmk/wpm.h>
 
+#include <zmk_widget_bridge/events/widget_bridge_state_changed.h>
+#include <zmk_widget_bridge/widget_bridge.h>
+
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define BONGO_BACKGROUND lv_color_white()
@@ -29,6 +32,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define BONGO_IDLE_TIMEOUT K_MINUTES(1)
 #define BONGO_IDLE_FRAME_PERIOD K_MSEC(200)
 #define BONGO_TAP_HOLD K_MSEC(500)
+#define BONGO_PAGE_PERIOD K_SECONDS(8)
 #define BONGO_FRAME_X 0
 #define BONGO_FRAME_Y (BONGO_LOGICAL_HEIGHT - BONGO_FRAME_HEIGHT)
 #define BONGO_WPM_GRAPH_X 2
@@ -92,6 +96,16 @@ static void draw_text(lv_obj_t *canvas, int x, int y, int width, lv_draw_label_d
     lv_canvas_init_layer(canvas, &layer);
     dsc->text = text;
     lv_area_t coords = {x, y, x + width - 1, BONGO_LOGICAL_HEIGHT - 1};
+    lv_draw_label(&layer, dsc, &coords);
+    lv_canvas_finish_layer(canvas, &layer);
+}
+
+static void draw_text_area(lv_obj_t *canvas, int x, int y, int width, int height,
+                           lv_draw_label_dsc_t *dsc, const char *text) {
+    lv_layer_t layer;
+    lv_canvas_init_layer(canvas, &layer);
+    dsc->text = text;
+    lv_area_t coords = {x, y, x + width - 1, y + height - 1};
     lv_draw_label(&layer, dsc, &coords);
     lv_canvas_finish_layer(canvas, &layer);
 }
@@ -248,6 +262,69 @@ static void draw_source_bongo_cat(struct zmk_widget_bongo_status *widget) {
     }
 }
 
+static void draw_page_header(lv_obj_t *canvas, const char *title) {
+    lv_draw_label_dsc_t centered;
+    lv_draw_rect_dsc_t black;
+
+    init_label(&centered, LV_TEXT_ALIGN_CENTER);
+    init_rect(&black, BONGO_FOREGROUND, 0, 0);
+    draw_text_area(canvas, 1, 4, 66, 12, &centered, title);
+    draw_rect(canvas, 3, 18, 62, 1, &black);
+}
+
+static void draw_weather_page(struct zmk_widget_bongo_status *widget) {
+    lv_draw_label_dsc_t centered;
+    char temperature[12];
+    char precipitation[16];
+    const int temperature_tenths = widget->companion.weather.temperature_tenths;
+    const int absolute_temperature = temperature_tenths < 0 ? -temperature_tenths
+                                                             : temperature_tenths;
+
+    lv_canvas_fill_bg(widget->drawing_canvas, BONGO_BACKGROUND, LV_OPA_COVER);
+    init_label(&centered, LV_TEXT_ALIGN_CENTER);
+    draw_page_header(widget->drawing_canvas, "POGODA");
+    draw_text_area(widget->drawing_canvas, 2, 25, 64, 14, &centered,
+                   widget->companion.weather.location);
+    snprintf(temperature, sizeof(temperature), "%s%d.%d C",
+             temperature_tenths < 0 ? "-" : "", absolute_temperature / 10,
+             absolute_temperature % 10);
+    draw_text_area(widget->drawing_canvas, 2, 47, 64, 18, &centered, temperature);
+    draw_text_area(widget->drawing_canvas, 2, 72, 64, 30, &centered,
+                   widget->companion.weather.condition);
+    snprintf(precipitation, sizeof(precipitation), "DESZCZ %u%%",
+             widget->companion.weather.precipitation_probability);
+    draw_text_area(widget->drawing_canvas, 2, 108, 64, 14, &centered, precipitation);
+    draw_text_area(widget->drawing_canvas, 2, 143, 64, 12, &centered, "APP OK");
+}
+
+static void draw_calendar_page(struct zmk_widget_bongo_status *widget) {
+    lv_draw_label_dsc_t centered;
+    lv_draw_label_dsc_t left;
+
+    lv_canvas_fill_bg(widget->drawing_canvas, BONGO_BACKGROUND, LV_OPA_COVER);
+    init_label(&centered, LV_TEXT_ALIGN_CENTER);
+    init_label(&left, LV_TEXT_ALIGN_LEFT);
+    draw_page_header(widget->drawing_canvas, "KALENDARZ");
+
+    if (widget->companion.events[0].title[0] == '\0') {
+        draw_text_area(widget->drawing_canvas, 2, 62, 64, 30, &centered,
+                       "BRAK WYDARZEN");
+        return;
+    }
+
+    draw_text_area(widget->drawing_canvas, 2, 25, 64, 12, &left,
+                   widget->companion.events[0].time);
+    draw_text_area(widget->drawing_canvas, 2, 39, 64, 43, &left,
+                   widget->companion.events[0].title);
+
+    if (widget->companion.events[1].title[0] != '\0') {
+        draw_text_area(widget->drawing_canvas, 2, 88, 64, 12, &left,
+                       widget->companion.events[1].time);
+        draw_text_area(widget->drawing_canvas, 2, 102, 64, 52, &left,
+                       widget->companion.events[1].title);
+    }
+}
+
 static void rotate_for_mounting(struct zmk_widget_bongo_status *widget) {
     const uint32_t source_stride =
         lv_draw_buf_width_to_stride(BONGO_LOGICAL_WIDTH, BONGO_COLOR_FORMAT);
@@ -261,6 +338,19 @@ static void rotate_for_mounting(struct zmk_widget_bongo_status *widget) {
 }
 
 static void draw_frame(struct zmk_widget_bongo_status *widget) {
+    if (widget->companion.active && widget->page == BONGO_PAGE_WEATHER &&
+        widget->companion.weather.valid) {
+        draw_weather_page(widget);
+        rotate_for_mounting(widget);
+        return;
+    }
+    if (widget->companion.active && widget->page == BONGO_PAGE_CALENDAR &&
+        widget->companion.calendar_valid) {
+        draw_calendar_page(widget);
+        rotate_for_mounting(widget);
+        return;
+    }
+
     draw_source_bongo_cat(widget);
     draw_indicators(widget->drawing_canvas, widget);
     draw_wpm_graph(widget->drawing_canvas, widget);
@@ -277,7 +367,9 @@ static void animation_work_cb(struct k_work *work) {
 
         widget->show_tap_frame = false;
         widget->idle_frame = (widget->idle_frame + 1) % BONGO_IDLE_FRAME_COUNT;
-        draw_frame(widget);
+        if (widget->page == BONGO_PAGE_STATUS || !widget->companion.active) {
+            draw_frame(widget);
+        }
         keep_animating = true;
     }
 
@@ -303,7 +395,9 @@ static void wpm_graph_work_cb(struct k_work *work) {
             (widget->wpm_history_head + 1) % BONGO_WPM_HISTORY_SIZE;
         widget->wpm_history_count =
             MIN(widget->wpm_history_count + 1, BONGO_WPM_HISTORY_SIZE);
-        draw_frame(widget);
+        if (widget->page == BONGO_PAGE_STATUS || !widget->companion.active) {
+            draw_frame(widget);
+        }
         keep_sampling = true;
     }
 
@@ -315,6 +409,40 @@ static void wpm_graph_work_cb(struct k_work *work) {
 }
 
 K_WORK_DELAYABLE_DEFINE(bongo_wpm_graph_work, wpm_graph_work_cb);
+
+static enum bongo_page next_available_page(const struct zmk_widget_bongo_status *widget) {
+    enum bongo_page candidate = widget->page;
+    for (uint8_t attempt = 0; attempt < 3; attempt++) {
+        candidate = (candidate + 1) % 3;
+        if (candidate == BONGO_PAGE_STATUS ||
+            (candidate == BONGO_PAGE_WEATHER && widget->companion.weather.valid) ||
+            (candidate == BONGO_PAGE_CALENDAR && widget->companion.calendar_valid)) {
+            return candidate;
+        }
+    }
+    return BONGO_PAGE_STATUS;
+}
+
+static void page_work_cb(struct k_work *work) {
+    bool keep_rotating = false;
+    struct zmk_widget_bongo_status *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        if (!widget->companion.active) {
+            continue;
+        }
+        widget->page = next_available_page(widget);
+        draw_frame(widget);
+        keep_rotating = true;
+    }
+
+    if (keep_rotating) {
+        k_work_reschedule_for_queue(zmk_display_work_q(),
+                                    CONTAINER_OF(work, struct k_work_delayable, work),
+                                    BONGO_PAGE_PERIOD);
+    }
+}
+
+K_WORK_DELAYABLE_DEFINE(bongo_page_work, page_work_cb);
 
 static void idle_work_cb(struct k_work *work) {
     ARG_UNUSED(work);
@@ -397,6 +525,39 @@ ZMK_SUBSCRIPTION(bongo_connection_listener, zmk_usb_conn_state_changed);
 #if IS_ENABLED(CONFIG_ZMK_BLE)
 ZMK_SUBSCRIPTION(bongo_connection_listener, zmk_ble_active_profile_changed);
 #endif
+
+static void companion_update_cb(struct zmk_widget_bridge_snapshot state) {
+    bool started = false;
+    bool active = false;
+    struct zmk_widget_bongo_status *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        started = started || (!widget->companion.active && state.active);
+        widget->companion = state;
+        if (!state.active) {
+            widget->page = BONGO_PAGE_STATUS;
+        }
+        active = active || state.active;
+        draw_frame(widget);
+    }
+
+    if (started) {
+        k_work_reschedule_for_queue(zmk_display_work_q(), &bongo_page_work,
+                                    BONGO_PAGE_PERIOD);
+    } else if (!active) {
+        k_work_cancel_delayable(&bongo_page_work);
+    }
+}
+
+static struct zmk_widget_bridge_snapshot companion_get_state(const zmk_event_t *eh) {
+    ARG_UNUSED(eh);
+    struct zmk_widget_bridge_snapshot state;
+    zmk_widget_bridge_get_snapshot(&state);
+    return state;
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(bongo_companion_listener, struct zmk_widget_bridge_snapshot,
+                            companion_update_cb, companion_get_state)
+ZMK_SUBSCRIPTION(bongo_companion_listener, zmk_widget_bridge_state_changed);
 
 static void layer_update_cb(struct bongo_layer_state state) {
     struct zmk_widget_bongo_status *widget;
@@ -501,6 +662,7 @@ int zmk_widget_bongo_status_init(struct zmk_widget_bongo_status *widget, lv_obj_
     draw_frame(widget);
     bongo_battery_listener_init();
     bongo_connection_listener_init();
+    bongo_companion_listener_init();
     bongo_layer_listener_init();
     bongo_wpm_listener_init();
     bongo_key_listener_init();

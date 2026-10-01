@@ -2,6 +2,7 @@
 
 #include <lvgl.h>
 #include <zephyr/kernel.h>
+#include <zmk_widget_bridge/widget_bridge.h>
 
 /* Draw upright in the screen's physical 68x160 orientation, then transform the
  * finished frame into the controller's landscape 160x68 framebuffer. */
@@ -26,6 +27,12 @@ enum bongo_connection_status {
     BONGO_CONNECTION_BLE_OPEN,
 };
 
+enum bongo_page {
+    BONGO_PAGE_STATUS,
+    BONGO_PAGE_WEATHER,
+    BONGO_PAGE_CALENDAR,
+};
+
 struct zmk_widget_bongo_status {
     sys_snode_t node;
     lv_obj_t *obj;
@@ -42,6 +49,8 @@ struct zmk_widget_bongo_status {
     uint8_t profile_index;
     const char *layer_label;
     enum bongo_connection_status connection;
+    enum bongo_page page;
+    struct zmk_widget_bridge_snapshot companion;
     uint8_t idle_frame;
     bool alternate_paw;
     bool show_tap_frame;

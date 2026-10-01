@@ -30,6 +30,12 @@ Each workflow run produces these hardware-specific firmware files:
 
 Flash the left file together with exactly one of the two right-half variants.
 
+The left nice!view firmware also includes the optional
+[`zmk-widget-bridge`](https://github.com/finestedm/zmk-widget-bridge). Without
+the Linux companion it behaves exactly like the regular Bongo Cat screen.
+While the companion heartbeat is active, it rotates through Bongo Cat,
+weather, and the next Google Calendar events.
+
 #### Keymap:
 
 
