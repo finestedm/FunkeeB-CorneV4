@@ -48,6 +48,6 @@ manifest:
       revision: bbeaf0a5301ab58e7a30e67caa409fa26cf841cd
     - name: zmk-widget-bridge
       remote: finestedm
-      revision: c27a335e603c68ddff3dc7561b8ee9d5071ffbdc
+      revision: 75874ddc62bfa50ddde5926ae231966352d6df06
   self:
     path: config
